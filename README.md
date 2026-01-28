@@ -36,12 +36,19 @@ The service is built with modularity in mind:
    ```
 
 ## 🚀 Usage
-1. Configure your target URLs or database settings in `config.py` (optional), you could also modify it to accept a list of URLs as a command line argument.
-2. Start the ingestion pipeline:
-   ```bash
-   python pipeline.py
-   ```
-3. The service will fetch the pages, apply rate limiting, and store the structured data in MongoDB while automatically handling duplicates.
+
+### Run with defaults (defined in `config.py`)
+```bash
+python pipeline.py
+```
+
+### Run with specific URLs
+You can provide one or more URLs directly via the command line. These will be processed first, followed by the default list.
+```bash
+python pipeline.py https://en.wikipedia.org/wiki/SpaceX https://en.wikipedia.org/wiki/NASA
+```
+
+The service will fetch the pages, apply rate limiting, and store the structured data in MongoDB while automatically handling duplicates.
 
 ## 📚 Why is this better than a simple scraper?
 Check out [challenges.md](challenges.md) for a deep dive into the complexities of scraping at scale and how this service addresses them.

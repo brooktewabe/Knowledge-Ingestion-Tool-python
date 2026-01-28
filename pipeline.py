@@ -1,5 +1,7 @@
 import time
 import logging
+import argparse
+import sys
 from collections import deque
 from config import INITIAL_URLS, RATE_LIMIT_DELAY
 from storage import MongoStorage
@@ -12,8 +14,15 @@ logging.basicConfig(
 logger = logging.getLogger("Pipeline")
 
 class IngestionPipeline:
-    def __init__(self):
-        self.queue = deque(INITIAL_URLS)
+    def __init__(self, urls=None):
+        # Merge CLI URLs with defaults from config (CLI URLs priority)
+        target_urls = list(urls) if urls else []
+        # Add defaults if they aren't already in the list
+        for url in INITIAL_URLS:
+            if url not in target_urls:
+                target_urls.append(url)
+                
+        self.queue = deque(target_urls)
         self.storage = MongoStorage()
         self.ingestor = WikiIngestor()
         self.processed_count = 0
@@ -54,7 +63,16 @@ class IngestionPipeline:
         self.storage.close()
 
 if __name__ == "__main__":
-    pipeline = IngestionPipeline()
+    parser = argparse.ArgumentParser(description="Knowledge Ingestion Service Pipeline")
+    parser.add_argument(
+        "urls", 
+        nargs="*", 
+        help="Target Wikipedia URLs to ingest. If omitted, uses default list in config.py"
+    )
+    
+    args = parser.parse_args()
+    
+    pipeline = IngestionPipeline(urls=args.urls)
     try:
         pipeline.run()
     except KeyboardInterrupt:
